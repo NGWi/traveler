@@ -1,3 +1,3 @@
-flask=3.1.0=py312hca03da5_0
-flask_cors=3.0.10=pyhd3eb1b0_0
-requests=2.32.3=py312hca03da5_1
+flask=3.1.0
+flask_cors=3.0.10
+requests=2.32.3
