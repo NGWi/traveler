@@ -102,14 +102,14 @@ def main():
     #     [15, 35, 0, 25],
     #     [20, 30, 25, 0],
     # ]
-    # use_end_point = True
+    # designated_end = True
 
     input_data = sys.stdin.read()
     
     try:
         data = json.loads(input_data)
         distance_matrix = data['matrix']
-        designated_end = data.get('designated_end', True)
+        designated_end = data.get('designated_end', False)
     except Exception as e:
         print(json.dumps({"error": f"Invalid input: {str(e)}"}))
         return

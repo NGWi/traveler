@@ -11,6 +11,7 @@ def solve_tsp():
         # Get locations from request JSON
         data = request.get_json()
         locations = data.get('locations', [])
+        designated_end = data.get('designated_end', False)
         
         # Validate input
         if not locations or len(locations) < 2:
@@ -22,7 +23,7 @@ def solve_tsp():
             return jsonify({"error": "Failed to calculate distance matrix"}), 500
 
         # Get fastest route
-        result = main.get_fastest_route(distance_matrix)
+        result = main.get_fastest_route(distance_matrix, designated_end)
         if not result:
             return jsonify({"error": "Failed to calculate route"}), 500
 

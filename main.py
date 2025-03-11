@@ -16,7 +16,7 @@ def get_distance_matrix(locations):
         print("Invalid matrix format")
     return None
 
-def get_fastest_route(distance_matrix, designated_end=True):
+def get_fastest_route(distance_matrix, designated_end=False):
     try:
         input_data = json.dumps({
             "matrix": distance_matrix,
@@ -55,23 +55,23 @@ def get_fastest_route(distance_matrix, designated_end=True):
 
 def main(): 
     # Sample user_input:
-    # user_input = ["San Francisco, CA", "Los Angeles, CA", "New York, NY", "Chicago, IL"]
+    sample_input = ["San Francisco, CA", "Los Angeles, CA", "New York, NY", "Chicago, IL"]
     
     # Get distance matrix
-    # distance_matrix = get_distance_matrix(user_input)
+    distance_matrix = get_distance_matrix(sample_input)
     
-    # if distance_matrix is None:
-    #     print("Failed to retrieve the distance matrix.")
-    #     return
+    if distance_matrix is None:
+        print("Failed to retrieve the distance matrix.")
+        return
 
     # Sample data:
-    distance_matrix = [ [0, 20924, 152768, 110588],
-                        [21116, 0, 146201, 104021],
-                        [153269, 146469, 0, 43370],
-                        [111089, 104289, 43514, 0]]
+    # distance_matrix = [ [0, 20924, 152768, 110588],
+    #                     [21116, 0, 146201, 104021],
+    #                     [153269, 146469, 0, 43370],
+    #                     [111089, 104289, 43514, 0]]
 
     # Get fastest route
-    fastest_route = get_fastest_route(distance_matrix, designated_end=True)
+    fastest_route = get_fastest_route(distance_matrix, designated_end=True) # Default False for backwards compatiibility
     
     if fastest_route is None:
         print("Failed to retrieve the fastest route.")
