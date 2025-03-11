@@ -2,7 +2,7 @@ from itertools import combinations
 import sys
 import json
 
-def tsp_held_karp(distances, end_loc=None):
+def tsp_held_karp(distances, end_loc=None): # function can theoretically accept end as an index
     n = len(distances)
     if n <= 1:
         print("Invalid input. The number of locations must be at least 2.")
@@ -14,15 +14,15 @@ def tsp_held_karp(distances, end_loc=None):
         return None, None
 
     sub_routes = dict()
-    all_locations = set(range(1, n)) - {end_loc}
+    valid_locations = [loc for loc in range(1,n) if loc != end_loc]
 
     # Base case: start from 0 to other locations (excluding end_loc)
-    for location in all_locations:
+    for location in valid_locations:
         sub_routes[(1 << location, location)] = (distances[0][location], 0)
 
     # Iterate through subset sizes
-    for subset_size in range(2, n-1):  # -1 to exclude end_loc
-        for subset in combinations(all_locations, subset_size):
+    for subset_size in range(2, len(valid_locations) + 1):
+        for subset in combinations(valid_locations, subset_size):
             subset_mask = sum(1 << loc for loc in subset)
             for location in subset:
                 prev_mask = subset_mask ^ (1 << location)
@@ -42,20 +42,18 @@ def tsp_held_karp(distances, end_loc=None):
                     sub_routes[(subset_mask, location)] = (min_cost, parent)
 
     # Calculate all_visited mask (all locations except 0 and end_loc)
-    all_visited = sum(1 << loc for loc in all_locations)
-    print(all_visited, sub_routes)
+    all_visited = sum(1 << loc for loc in valid_locations)
+
     # Find minimum cost to reach end location
     min_total = float('inf')
     last_location = None
     
-    for location in all_locations:
+    for location in valid_locations:
         if (all_visited, location) in sub_routes:
             cost = sub_routes[(all_visited, location)][0] + distances[location][end_loc]
             if cost < min_total:
                 min_total = cost
                 last_location = location
-
-    print(min_total, last_location)
 
     # Reconstruct path
     if last_location is None:
@@ -98,28 +96,25 @@ def convert_seconds(seconds):
 
 def main():
     # Example usage
-    distance_matrix = [
-        [0, 10, 15, 20],
-        [10, 0, 35, 30],
-        [15, 35, 0, 25],
-        [20, 30, 25, 0],
-    ]
-    use_end_point = True
+    # distance_matrix = [
+    #     [0, 10, 15, 20],
+    #     [10, 0, 35, 30],
+    #     [15, 35, 0, 25],
+    #     [20, 30, 25, 0],
+    # ]
+    # use_end_point = True
 
-    # time, path = tsp_held_karp(distance_matrix, 3)
-    # print(f"Shortest path: {path} in {convert_seconds(time)}")
-
-    # input_data = sys.stdin.read()
+    input_data = sys.stdin.read()
     
-    # try:
-    #     data = json.loads(input_data)
-    #     distance_matrix = data['matrix']
-    #     use_end_point = data.get('use_end_point', True)
-    # except Exception as e:
-    #     print(json.dumps({"error": f"Invalid input format: {str(e)}"}))
-    #     return
+    try:
+        data = json.loads(input_data)
+        distance_matrix = data['matrix']
+        designated_end = data.get('designated_end', True)
+    except Exception as e:
+        print(json.dumps({"error": f"Invalid input: {str(e)}"}))
+        return
 
-    end_loc = len(distance_matrix) - 1 if use_end_point else 0
+    end_loc = len(distance_matrix) - 1 if designated_end else 0
     time, path = tsp_held_karp(distance_matrix, end_loc)
     
     if time is None or path is None:

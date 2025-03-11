@@ -16,12 +16,13 @@ def get_distance_matrix(locations):
         print("Invalid matrix format")
     return None
 
-def get_fastest_route(distance_matrix):
+def get_fastest_route(distance_matrix, designated_end=True):
     try:
-        # Serialize the distance matrix to JSON
-        matrix_json = json.dumps(distance_matrix)
-
-        # Call travelingSalesman.py and pass the distance matrix as input
+        input_data = json.dumps({
+            "matrix": distance_matrix,
+            "designated_end": designated_end
+        })
+        
         process = subprocess.Popen(
             ['python', 'travelingSalesman.py'],
             stdin=subprocess.PIPE,
@@ -30,39 +31,47 @@ def get_fastest_route(distance_matrix):
             universal_newlines=True
         )
         
-        # Send the matrix JSON to the subprocess
-        stdout, stderr = process.communicate(input=matrix_json)
-        if process.returncode != 0:
-            print(f"Error in travelingSalesman.py: {stderr}")
-            return None
+        stdout, stderr = process.communicate(input=input_data)
         
-        # Assuming travelingSalesman.py returns a JSON string
+        if process.returncode != 0:
+            print(f"TSP Error: {stderr}")
+            return None
+            
         result = json.loads(stdout.strip())
-        return result
+        
+        # Handle error responses
+        if 'error' in result:
+            print(f"TSP Error: {result['error']}")
+            return None
+            
+        return (result['total_time'], result['optimal_route'])
     
+    except json.JSONDecodeError:
+        print(f"Invalid JSON response: {stdout}")
+        return None
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print(f"Route Error: {str(e)}")
         return None
 
 def main(): 
     # Sample user_input:
-    user_input = ["San Francisco, CA", "Los Angeles, CA", "New York, NY", "Chicago, IL"]
+    # user_input = ["San Francisco, CA", "Los Angeles, CA", "New York, NY", "Chicago, IL"]
     
     # Get distance matrix
-    distance_matrix = get_distance_matrix(user_input)
+    # distance_matrix = get_distance_matrix(user_input)
     
-    if distance_matrix is None:
-        print("Failed to retrieve the distance matrix.")
-        return
+    # if distance_matrix is None:
+    #     print("Failed to retrieve the distance matrix.")
+    #     return
 
     # Sample data:
-    # distance_matrix = [ [0, 20924, 152768, 110588],
-    #                     [21116, 0, 146201, 104021],
-    #                     [153269, 146469, 0, 43370],
-    #                     [111089, 104289, 43514, 0]]
+    distance_matrix = [ [0, 20924, 152768, 110588],
+                        [21116, 0, 146201, 104021],
+                        [153269, 146469, 0, 43370],
+                        [111089, 104289, 43514, 0]]
 
     # Get fastest route
-    fastest_route = get_fastest_route(distance_matrix)
+    fastest_route = get_fastest_route(distance_matrix, designated_end=True)
     
     if fastest_route is None:
         print("Failed to retrieve the fastest route.")
