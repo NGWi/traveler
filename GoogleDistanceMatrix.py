@@ -45,7 +45,8 @@ def main():
     payload = {
         "origins": geocoded,
         "destinations": geocoded,
-        "travelMode": "DRIVE"
+        "travelMode": "DRIVE",
+        "routingPreference": "TRAFFIC_AWARE_OPTIMAL",  # Explicitly enable traffic
     }
 
     # Get distance matrix
