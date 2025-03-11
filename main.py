@@ -43,7 +43,7 @@ def get_fastest_route(distance_matrix, designated_end=False):
         if 'error' in result:
             print(f"TSP Error: {result['error']}")
             return None
-            
+    
         return (result['total_time'], result['optimal_route'])
     
     except json.JSONDecodeError:
