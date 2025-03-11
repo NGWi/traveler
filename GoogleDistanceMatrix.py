@@ -47,7 +47,6 @@ def main():
         "destinations": geocoded,
         "travelMode": "DRIVE",
         "routingPreference": "TRAFFIC_AWARE_OPTIMAL",  # Explicitly enable traffic
-        "departureTime": "now"  # Required for traffic data
     }
 
     # Get distance matrix
