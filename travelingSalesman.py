@@ -7,6 +7,11 @@ def tsp_held_karp(distances, end_loc=None): # function can theoretically accept 
     if n <= 1:
         print("Invalid input. The number of locations must be at least 2.")
         return None, None
+    if n == 2:
+        if end_loc == 0:
+            return distances[0][1] + distances[1][0], [0, 1, 0]
+        else:
+            return distances[0][1], [0, 1]
     if end_loc is None:
         end_loc = n - 1
     if end_loc < 0 or end_loc >= n:

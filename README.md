@@ -1,7 +1,7 @@
 # The Traveler App
 This project is live at https://the-traveler-fucj.onrender.com/ (Mar 10, 2025)
 
-This backend uses the optimal exact solution to the traveling salesman problem to find the shortest route from a starting location through a set of locations (and, optionally, back to the starting location).
+This backend uses the optimal exact solution to the traveling salesman problem and live driving times to find the fastest order in which to drive to a set of locations (and, optionally, back to the starting location).
 
 Future plan: Integrate with Google Maps to show the completed route.
 
