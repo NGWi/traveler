@@ -46,7 +46,7 @@ def main():
         "origins": geocoded,
         "destinations": geocoded,
         "travelMode": "DRIVE",
-        "routingPreference": "TRAFFIC_AWARE",  # Explicitly enable traffic
+        "routingPreference": "TRAFFIC_AWARE_OPTIMAL",  # Explicitly enable traffic
         "departureTime": "now"  # Required for traffic data
     }
 
