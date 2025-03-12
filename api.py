@@ -22,6 +22,11 @@ def solve_tsp():
         distance_matrix = main.get_distance_matrix(locations)
         if not distance_matrix:
             return jsonify({"error": "Failed to calculate distance matrix"}), 500
+        
+        # Check for geocoding error
+        if isinstance(distance_matrix, dict) and "error" in distance_matrix:
+            return jsonify(distance_matrix), 400
+        
         # Get fastest route
         result = main.get_fastest_route(distance_matrix, designated_end)
         if not result:

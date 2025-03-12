@@ -25,9 +25,9 @@ def main():
         if coords:
             geocoded.append({"waypoint": {"location": {"latLng": coords}}})
         else:
-            print(f"Failed to geocode: {loc}")
+            print(json.dumps({"error": f"Failed to geocode: {loc}"}))
             return
-
+        
     url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
     headers = {
         "Content-Type": "application/json",
@@ -66,7 +66,11 @@ def main():
     for entry in data:
         i = entry["originIndex"]
         j = entry["destinationIndex"]
-        matrix[i][j] = int(entry["duration"][:-1])
+        if "duration" in entry:
+            matrix[i][j] = int(entry["duration"][:-1])
+        else:
+            print(json.dumps({"error": f"Could not pick a route from {locations[i]} to {locations[j]}. Try being more specific about the locations."}))
+            return
 
     print(json.dumps(matrix))  # Output as JSON to be passed
 
