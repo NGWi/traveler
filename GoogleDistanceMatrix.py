@@ -3,6 +3,7 @@ from sys import argv
 import requests
 import json
 
+
 def get_coordinates(address, api_key):
     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {"address": address, "key": api_key}
@@ -13,10 +14,11 @@ def get_coordinates(address, api_key):
         return {"latitude": location["lat"], "longitude": location["lng"]}
     return None
 
+
 def main():
     locations = argv[1:]  # Get locations from command line arguments
     # Geocode all locations
-    api_key = environ['GM_KEY']
+    api_key = environ["GM_KEY"]
     geocoded = []
     for loc in locations:
         coords = get_coordinates(loc, api_key)
@@ -25,12 +27,12 @@ def main():
         else:
             print(f"Failed to geocode: {loc}")
             return
-            
+
     url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
     headers = {
         "Content-Type": "application/json",
         "X-Goog-FieldMask": "originIndex,destinationIndex,duration",
-        "X-Goog-Api-Key": api_key
+        "X-Goog-Api-Key": api_key,
     }
 
     # locations = [
@@ -40,13 +42,15 @@ def main():
     #     "Chicago, IL"
     # ]
 
-
+    total = len(geocoded)
     # Build payload
     payload = {
         "origins": geocoded,
         "destinations": geocoded,
         "travelMode": "DRIVE",
-        "routingPreference": "TRAFFIC_AWARE_OPTIMAL",  # Explicitly enable traffic
+        "routingPreference": (  # Google caps OPTIMAL at 100 total elements
+            "TRAFFIC_AWARE_OPTIMAL" if total <= 10 else "TRAFFIC_AWARE"
+        ),
     }
 
     # Get distance matrix
@@ -54,12 +58,10 @@ def main():
     if response.status_code != 200:
         print(f"API Error: {response.text}")
         return
-
     data = response.json()
+
     # Initialize matrix with zeros
-    n = len(locations)
-    matrix = [[0] * n for _ in range(n)]
-    
+    matrix = [[0] * total for _ in range(total)]
     # Populate matrix from API response
     for entry in data:
         i = entry["originIndex"]
@@ -67,6 +69,7 @@ def main():
         matrix[i][j] = int(entry["duration"][:-1])
 
     print(json.dumps(matrix))  # Output as JSON to be passed
+
 
 if __name__ == "__main__":
     main()
