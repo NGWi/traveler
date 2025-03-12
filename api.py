@@ -63,9 +63,10 @@ if __name__ == "__main__":
 
         options = {
             "bind": "0.0.0.0:8000",
-            "workers": 4,
-            "worker_class": "sync",
-            "worker_connections": 1000,
+            "workers": 1,  # Single worker for free tier
+            "worker_class": "sync",  # Safer for memory-intensive operations
+            "timeout": 120,  # 2 minutes timeout
+            "graceful_timeout": 60,
         }
 
         GunicornApp(app, options).run()
