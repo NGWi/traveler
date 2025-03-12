@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import main  # Main module of traveler repo
@@ -5,13 +6,14 @@ import main  # Main module of traveler repo
 app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin requests
 
-@app.route('/solve-tsp', methods=['POST'])
+
+@app.route("/solve-tsp", methods=["POST"])
 def solve_tsp():
     try:
         # Get locations from request JSON
         data = request.get_json()
-        locations = data.get('locations', [])
-        designated_end = data.get('designated_end', False)
+        locations = data.get("locations", [])
+        designated_end = data.get("designated_end", False)
         # Validate input
         if not locations or len(locations) < 2:
             return jsonify({"error": "At least 2 locations required"}), 400
@@ -26,18 +28,47 @@ def solve_tsp():
             return jsonify({"error": "Failed to calculate route"}), 500
 
         time, path = result
-        
+
         # Return locations in order instead of indices
         ordered_locations = [locations[i] for i in path]
 
-        return jsonify({
-            "total_time": time,
-            "optimal_route": ordered_locations,
-            "distance_matrix": distance_matrix
-        })
-    
+        return jsonify(
+            {
+                "total_time": time,
+                "optimal_route": ordered_locations,
+                "distance_matrix": distance_matrix,
+            }
+        )
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001)
+
+if __name__ == "__main__":
+    if os.environ.get("FLASK_ENV") == "production":
+        from gunicorn.app.base import BaseApplication
+
+        class GunicornApp(BaseApplication):
+            def __init__(self, app, options=None):
+                self.options = options or {}
+                self.application = app
+                super().__init__()
+
+            def load_config(self):
+                for key, value in self.options.items():
+                    self.cfg.set(key, value)
+
+            def load(self):
+                return self.application
+
+        options = {
+            "bind": "0.0.0.0:8000",
+            "workers": 4,
+            "worker_class": "sync",
+            "worker_connections": 1000,
+        }
+
+        GunicornApp(app, options).run()
+    else:
+        # Development server
+        app.run(debug=True)
