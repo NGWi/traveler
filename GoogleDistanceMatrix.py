@@ -1,5 +1,4 @@
 from os import environ
-from sys import argv
 import requests
 import json
 
@@ -15,9 +14,8 @@ def get_coordinates(address, api_key):
     return None
 
 
-def main():
-    locations = argv[1:]  # Get locations from command line arguments
-    # Geocode all locations
+def get_matrix(locations):
+    """Get distance matrix from Google Maps API."""
     api_key = environ["GM_KEY"]
     geocoded = []
     for loc in locations:
@@ -26,7 +24,7 @@ def main():
             geocoded.append({"waypoint": {"location": {"latLng": coords}}})
         else:
             print(f"Failed to geocode: {loc}")
-            return
+            return None
 
     url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
     headers = {
@@ -35,29 +33,20 @@ def main():
         "X-Goog-Api-Key": api_key,
     }
 
-    # locations = [
-    #     "San Francisco, CA",
-    #     "Los Angeles, CA",
-    #     "New York, NY",
-    #     "Chicago, IL"
-    # ]
-
     total = len(geocoded)
-    # Build payload
     payload = {
         "origins": geocoded,
         "destinations": geocoded,
         "travelMode": "DRIVE",
-        "routingPreference": (  # Google caps OPTIMAL at 100 total elements
+        "routingPreference": (
             "TRAFFIC_AWARE_OPTIMAL" if total <= 10 else "TRAFFIC_AWARE"
         ),
     }
 
-    # Get distance matrix
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     if response.status_code != 200:
         print(f"API Error: {response.text}")
-        return
+        return None
     data = response.json()
 
     # Initialize matrix with zeros
@@ -68,7 +57,16 @@ def main():
         j = entry["destinationIndex"]
         matrix[i][j] = int(entry["duration"][:-1])
 
-    print(json.dumps(matrix))  # Output as JSON to be passed
+    return matrix
+
+
+def main():
+    from sys import argv
+
+    locations = argv[1:]  # Get locations from command line arguments
+    matrix = get_matrix(locations)
+    if matrix:
+        print(json.dumps(matrix))
 
 
 if __name__ == "__main__":
