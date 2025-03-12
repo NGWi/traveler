@@ -127,7 +127,7 @@ def main():
         return
     
     print(json.dumps({
-        "total_time": convert_seconds(time),
+        "total_time": time,
         "optimal_route": path
     }))
 

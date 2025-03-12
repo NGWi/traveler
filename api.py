@@ -29,13 +29,11 @@ def solve_tsp():
 
         time, path = result
 
-        # Return locations in order instead of indices
-        ordered_locations = [locations[i] for i in path]
 
         return jsonify(
             {
                 "total_time": time,
-                "optimal_route": ordered_locations,
+                "optimal_route": path,
                 "distance_matrix": distance_matrix,
             }
         )
@@ -72,4 +70,4 @@ if __name__ == "__main__":
         GunicornApp(app, options).run()
     else:
         # Development server
-        app.run(debug=True)
+        app.run(debug=True, port=5001)
